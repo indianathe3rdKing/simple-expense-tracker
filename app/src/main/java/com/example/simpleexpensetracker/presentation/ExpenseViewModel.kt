@@ -9,7 +9,7 @@ import com.example.simpleexpensetracker.domain.usecase.DeleteExpenseUseCase
 import com.example.simpleexpensetracker.domain.usecase.GetAmountExpense
 import com.example.simpleexpensetracker.domain.usecase.GetExpenseUseCase
 
-class ExpenseViewModel: ViewModel() {
+class ExpenseViewModel : ViewModel() {
     private val repository = RepositoryImpl()
     private val getExpenseUseCase = GetExpenseUseCase(repository)
     private val addExpenseUseCase = AddExpenseUseCase(repository)
@@ -18,22 +18,26 @@ class ExpenseViewModel: ViewModel() {
 
     val expenses = mutableStateListOf<Expense>()
 
-    fun load(){
+    fun load() {
         expenses.clear()
         expenses.addAll(getExpenseUseCase())
     }
 
-    fun addExpense(expense: Expense){
-        addExpenseUseCase(expense)
-        load()
+    fun addExpense(title: String, amount: Double?) {
+
+        if (title.isNotBlank()  && amount!! > 0) {
+            addExpenseUseCase(Expense(0, title, amount))
+            getTotal()
+            load()
+        }
     }
 
-    fun deleteAmount(expense: Expense){
+    fun deleteAmount(expense: Expense) {
         deleteExpenseUseCase(expense)
+        getTotal()
         load()
     }
 
-    fun getTotal(){
-        getAmountExpense()
-    }
+    fun getTotal(): Double = if(expenses.isNotEmpty())  getAmountExpense() else 0.0
+
 }
